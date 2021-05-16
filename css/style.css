@@ -38,8 +38,30 @@ ul li {
 
 input {
     font-family: "Windows 95", sans-serif;
-    font-size: 11px;
+    font-size: 1em;
     font-weight: 200;
+}
+
+#prompt input[type=text] {
+    background-color: blueviolet;
+    font-size: 3rem;
+    height: 4rem;
+    width: 32rem;
+}
+
+#prompt form input[type=password] {
+    background-color: red;
+    font-size: 3rem;
+    height: 4rem;
+    width: 32rem;
+}
+
+#prompt form input[type=submit] {
+    background-color: gray;
+    font-size: 4rem;
+    width: 32rem;
+    font-size: 3rem;
+    height: 4rem;
 }
 
 #wrapper {
@@ -65,6 +87,12 @@ input {
     border-left: 1px solid #c0c0c0;
     border-top: 1px solid #c0c0c0;
     box-shadow: -1px -1px white, 0px -1px white, -1px 0px white, 1px 1px black, -1px 1px black, 1px -1px black;
+    opacity: 0;
+    transition: 500ms cubic-bezier(.47, 0, .74, .71) opacity;
+}
+
+#dialogue-box.active {
+    opacity: 1;
 }
 
 #titlebar {
@@ -124,7 +152,7 @@ input[type=text], input[type=password] {
     float: left;
 }
 
-#form {
+#entry {
     width: 150px;
     height: 72px;
     float: left;
@@ -136,7 +164,6 @@ input[type=text], input[type=password] {
     left: 82%;
     top: 18%;
 }
-
 
 input[type=button] {
     width: 70px;
@@ -166,6 +193,21 @@ input[type=submit] {
     margin-left: 1px;
     display: block;
     margin-bottom: 12px;
+}
+
+input:hover[type=submit] {
+    background: yellowgreen;
+}
+
+.messageBox {
+    width: 60%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
+    display: block;
+    text-align: left;
 }
 
 .pixels {
