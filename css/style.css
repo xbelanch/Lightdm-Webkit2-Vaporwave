@@ -42,7 +42,7 @@ input {
     font-weight: 200;
 }
 
-#prompt input[type=text] {
+#prompt select {
     background-color: blueviolet;
     font-size: 3rem;
     height: 4rem;

@@ -1,3 +1,30 @@
+// --- Le global elements
+let promptForm = document.getElementById("prompt");
+let loginForm = promptForm.querySelector(".password-form");
+let userClickBox = document.getElementById("username");
+let userPasswordInput = document.getElementById("password");
+let activeUserName = null;
+let pendingAuthentication = false;
+
+
+// --- Le helper functions
+function prepare_list_users() {
+    if (lightdm.users.length > 1) {
+        for (let user of lightdm.users) {
+            let option = document.createElement("option");
+            option.setAttribute("value", user.name);
+            // TODO: add selected attribute for last username login
+            option.textContent = user.name;
+            userClickBox.appendChild(option);
+        }
+    } else {
+        let option = document.createElement("option");
+        option.setAttribute("value", lightdm.users[0].name);
+        option.text = lightdm.users[0].name;
+        userClickBox.appendChild(option);
+    }
+}
+
 function clear_messages() {
   messages = document.getElementById("messages");
   messages.innerHTML = "";
@@ -7,8 +34,6 @@ function clear_messages() {
 function start_authentication() {
     // clear previous alert or warning messages
     clear_messages();
-    // start with null userid, have pam prompt for userid.
-    lightdm.authenticate();
     // display dialogue box
     // you can deactivate later if this visual goodie
     // doesnt fit your needs
@@ -27,7 +52,7 @@ function authentication_complete() {
     }
 }
 
-// Callbacks
+// --- Le Callbacks
 function attemptLogin(event) {
     // Prevent Default Form Behavior (Try To Submit To Location)
     event.preventDefault();
@@ -41,29 +66,24 @@ function attemptLogin(event) {
 
 function setActiveUser(event) {
 
-    // Get Information For The Selected User Listing
-    let userListing = event.currentTarget;
-    let userName = lightdm.users[userListing.getAttribute("data-user-index")].name;
-    console.log(userName);
+    let userName = undefined;
 
-    // fill input with username
-    userListing.value = userName;
-
-    // if selected user is already activeUsername, do nothing
-    if (userName == activeUserName)
-        return;
+    if (userClickBox.value === undefined) {
+        // no username selected, set first one by default
+        userName = userClickBox.firstChild.innerHTML;
+    } else {
+        userName = userClickBox.value;
+    }
 
     // Update Status To Reflect Selected User
     pendingAuthentication = true;
-    activeUserName = userName;
     // Focus Password Box
     userPasswordInput.focus();
-
     // Begin Authentication
-    lightdm.authenticate(activeUserName);
+    lightdm.authenticate(userName);
 }
 
-
+// --- Le mocked lightDM object
 let debugLightDM = {
     "authenticate" : function(activeUserName) {
         console.log("lightdm.authenticate:", activeUserName);
@@ -78,35 +98,24 @@ let debugLightDM = {
         console.log("lightdm.reboot");
     },
     "users" : [
-        { name: "rotter" },
+        { name: "rotter" } /* ,
         { name: "lyud" } ,
-        { name: "tomachito" }
+        { name: "tomachito" } */
     ],
     "hostname" : "arch"
 }
 
-// --- Booting up
-let promptForm = document.getElementById("prompt");
-let loginForm = promptForm.querySelector(".password-form");
-let userClickBox = document.getElementById("username");
-let userPasswordInput = document.getElementById("password");
-let activeUserName = null;
-let pendingAuthentication = false;
-
+// --- Le start
 window.lightdm = window.lightdm || debugLightDM;
 window.addEventListener('load', () => {
+    prepare_list_users();
     start_authentication();
-
-    // add data-user-index
-    // need for user list context
-    userClickBox.setAttribute("data-user-index", 0);
-    // Add Login Form Listener
-    // userClickBox.addEventListener("click", setActiveUser);
     userClickBox.addEventListener("keydown", function(event) {
         if (event.keyCode == 9) {
             event.preventDefault();
             setActiveUser(event);
         }
-    })
+    });
+    userPasswordInput.addEventListener("click", setActiveUser);
     loginForm.addEventListener("submit", attemptLogin);
 });
