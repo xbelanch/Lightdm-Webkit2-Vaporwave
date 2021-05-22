@@ -4,19 +4,51 @@
     <title>Vaporwave Login Theme</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css" />
+    <!-- <link rel="stylesheet" href="css/style.css" /> -->
     <meta name="description" content="Theme: Vaporwave">
   </head>
   <body id="body">
+    <style>
+      #body {
+          background-color: grey;
+      }
 
-    <div id="prompt">
-      <select name="username" id="username"></select>
-      <!-- <input class="input" id="username" type="text"> -->
-      <form class="password-form">
-        <input class="input" id="password" type="password">
-        <input class="input" id="submit" type="submit">
-      </form>
+      #inputUserPassContainer {
+          width: 620px;
+          margin: 0 auto;
+          background-color: orangered;
+      }
+      input[type=text], input[type=password] {
+          font-size: 3.3em;
+          width: 10em;
+          margin: 0.3em 0;
+      }
+    </style>
+
+
+    <div id="inputUserPassContainer">
+      <div id="usernameField">
+        <input type="text" name="username" id="username" class="form-control">
+      </div>
+      <div id="passwordField">
+        <input type="password" name="password" id="password" class="form-control">
+      </div>
+      <!-- <div id="submitField"> -->
+      <!--   <input type="button" name="submit" id="submit" class="form-control" value="OK"> -->
+      <!-- </div> -->
     </div>
+
+    <!-- <div id="prompt"> -->
+    <!--   <select name="username" id="username"></select> -->
+    <!--   <\!-- <input class="input" id="username" type="text"> -\-> -->
+    <!--   <form class="password-form"> -->
+    <!--     <input class="input" id="password" type="password"> -->
+    <!--     <input class="input" id="submit" type="submit"> -->
+    <!--   </form> -->
+    <!-- </div> -->
+
+
+
     <!-- <div id="wrapper"> -->
     <!--   <\!-- -->
     <!--       Check out this codepens: -->
@@ -53,7 +85,7 @@
     <!--   <\!-- end of dialogue-box -\-> -->
     <!--   </span> -->
     <!-- </div> -->
-    <p class="messageBox" id="messages">Hello World!</p>
-    <script type="text/javascript" src="js/main.js"></script>
+    <!-- <p class="messageBox" id="messages">Hello World!</p> -->
+    <script type="text/javascript" src="js/main2.js"></script>
   </body>
 </html>
