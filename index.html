@@ -10,7 +10,7 @@
   <body id="body">
     <style>
       #body {
-          background-color: grey;
+          background-color: black;
       }
 
       #inputUserPassContainer {
@@ -23,8 +23,19 @@
           width: 10em;
           margin: 0.3em 0;
       }
-    </style>
 
+      #debug {
+          background-color: black;
+      }
+
+      #debug p {
+          color: greenyellow;
+          font-size: 1em;
+          padding: 0;
+          font-family: monospace;
+          line-height: 0.5em;
+      }
+    </style>
 
     <div id="inputUserPassContainer">
       <div id="usernameField">
@@ -33,9 +44,9 @@
       <div id="passwordField">
         <input type="password" name="password" id="password" class="form-control">
       </div>
-      <!-- <div id="submitField"> -->
-      <!--   <input type="button" name="submit" id="submit" class="form-control" value="OK"> -->
-      <!-- </div> -->
+    </div>
+
+    <div id="debug">
     </div>
 
     <!-- <div id="prompt"> -->
