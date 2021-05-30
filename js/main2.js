@@ -137,12 +137,31 @@ function handleUserKeydown(event) {
     }
 }
 
+function setupPowerButtons() {
+    if (lightdm.can_shutdown) {
+        shutdown.addEventListener('click', () => {
+            lightdm.shutdown();
+        });
+    }
+    if (lightdm.can_suspend) {
+        sleep.addEventListener('click', () => {
+            lightdm.suspend();
+        });
+    }
+    if (lightdm.can_restart) {
+        reboot.addEventListener('click', () => {
+            lightdm.restart();
+        });
+    }
+}
+
 window.lightdm = window.lightdm || debugLightDM;
 
 // --- Globals
 let dafault_session = lightdm.sessions[0];
 let username = document.getElementById("username");
 let password = document.getElementById("password");
+let shutdown = document.getElementById("shutdown");
 
 window.addEventListener('load', () => {
     if (lightdm.debug)
@@ -167,5 +186,8 @@ window.addEventListener('load', () => {
     // if user clicks on password field, check username field
     let passwordField = document.getElementById("password");
     passwordField.addEventListener('click', checkUsername);
+
+    // Setup power system buttons
+    setupPowerButtons();
 
 });
