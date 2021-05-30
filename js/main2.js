@@ -72,24 +72,28 @@ function authentication_complete() {
     if (lightdm.is_authenticated) {
         console.log("User is authenticated. Session: " +  dafault_session.name);
         lightdm.login(lightdm.authentication_user, dafault_session.key);
+    } else {
+        show_message("Use name or password is incorrect. Try again", "ERROR");
+        lightdm.authenticate();
+        username.value = '';
+        password.value = '';
     }
 }
 
 function show_message(text, type) {
     console.log(type + ':' + text);
+    message.innerHTML = type + ':' + text;
 }
 
 function submitPassword(event) {
     event.preventDefault();
-    console.log("submitPassword()");
     if (checkBeforeSubmitPassword()) {
         console.log("Password submitted");
         lightdm.cancel_autologin(); // Cancels the authentication of the autologin user.
         lightdm.respond(password.value);
-        // comment this line on production
-        // lightdm.authentication_complete();
     } else {
-        console.log("Clean fields and start again");
+        // reset input values
+        lightdm.authenticate();
         username.value = "";
         password.value = "";
     }
@@ -107,12 +111,12 @@ function debugLightDMVariables() {
 
 function checkBeforeSubmitPassword() {
     if (username.value.length === 0) {
-        lightdm.show_message("Username field is empty", "error");
+        show_message("Username field is empty", "error");
         return 0;
     }
 
     if (password.value.length === 0) {
-        lightdm.show_message("Password field is empty", "error");
+        show_message("Password field is empty", "error");
         return 0;
     }
     return 1;
@@ -120,7 +124,7 @@ function checkBeforeSubmitPassword() {
 
 function checkUsername(event) {
     if (username.value.length === 0) {
-        console.log('Username field is empty')
+        show_message('Username field cannot be empty', "error");
         return 0;
     }
     lightdm.authenticate(username.value);
@@ -128,8 +132,7 @@ function checkUsername(event) {
 }
 
 function handleUserKeydown(event) {
-    if (event.keyCode === 9 && event.target.id === "username") {
-        console.log("TAB pressed on username field");
+    if (event.keyCode === 9 && event.target.id === "username") { // TAB key pressed
         checkUsername(event);
     }
     if (event.keyCode === 13) { // Enter is pressed by user
@@ -162,6 +165,7 @@ let dafault_session = lightdm.sessions[0];
 let username = document.getElementById("username");
 let password = document.getElementById("password");
 let shutdown = document.getElementById("shutdown");
+let message = document.getElementById("message");
 
 window.addEventListener('load', () => {
     if (lightdm.debug)
