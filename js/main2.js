@@ -147,11 +147,24 @@ let password = document.getElementById("password");
 window.addEventListener('load', () => {
     if (lightdm.debug)
         debugLightDMVariables();
+
     const inputs = document.querySelectorAll("input");
     for (let input of inputs) {
+        input.value = '';
         input.addEventListener('keydown', handleUserKeydown);
     }
 
+    // start with cursor focusing on username input
+    username.focus();
+
+    // print by default last user logged
+    // that info perhaps can grabbed from ligthdm sessions?
+    if (lightdm.users.length > 0) {
+        username.value = lightdm.users[lightdm.users.length - 1].name;
+        lightdm.select_user = username.value;
+    }
+
+    // if user clicks on password field, check username field
     let passwordField = document.getElementById("password");
     passwordField.addEventListener('click', checkUsername);
 
