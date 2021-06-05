@@ -1,5 +1,16 @@
-// --- Le start
-// --- Le mocked lightDM object
+// Le start
+
+let globals = {
+    "default_session" : undefined,
+    "pagetitle": document.getElementById("pagetitle"),
+    "session"  : document.getElementById("session"),
+    "username" : document.getElementById("username"),
+    "password" : document.getElementById("password"),
+    "shutdown" : document.getElementById("shutdown"),
+    "messages" : document.getElementById("messages")
+}
+
+// Le mocked lightDM object
 let debugLightDM = {
     "debug" : false,
     "authenticate" : function(activeUserName) {
@@ -39,9 +50,9 @@ let debugLightDM = {
         console.log("lightdm.hibernate");
     },
     "users" : [
-        { name: "rotter" } ,
-        { name: "lyud" } ,
-        { name: "tomachito" }
+        { username: "rotter" } ,
+        { username: "lyud" } ,
+        { username: "tomachito" }
     ],
     // Variables
     "is_authenticated" : true, // Indicates if the user has successfully authenticated
@@ -65,6 +76,12 @@ let debugLightDM = {
     "layout" : "es cat"
 }
 
+// --- Helpers
+function clear_messages() {
+    messages.innerHTML = "";
+    messages.style.visibility = "hidden";
+}
+
 // --- Listeners required by LightDM
 function authentication_complete() {
     // This function is called by LightDM when authentication has completed.
@@ -73,10 +90,10 @@ function authentication_complete() {
         console.log("User is authenticated. Session: " +  dafault_session.name);
         lightdm.login(lightdm.authentication_user, dafault_session.key);
     } else {
+        // TODO: Fix lightdm prompt asking for alternatives when error raised
         show_message("Use name or password is incorrect. Try again", "ERROR");
-        lightdm.authenticate();
-        username.value = '';
         password.value = '';
+        lightdm.authenticate(username.value);
     }
 }
 
@@ -92,22 +109,20 @@ function submitPassword(event) {
         lightdm.cancel_autologin(); // Cancels the authentication of the autologin user.
         lightdm.respond(password.value);
     } else {
-        // reset input values
-        lightdm.authenticate();
-        username.value = "";
         password.value = "";
+        lightdm.authenticate(username.value);
     }
 }
 
 // --- Helpers
-function debugLightDMVariables() {
-    let debug = document.getElementById("debug");
-    for (var property in lightdm) {
-        let p = document.createElement("p");
-        debug.appendChild(p);
-        p.innerHTML = property + ':' + lightdm[property] + ';';
-    }
-}
+// function debugLightDMVariables() {
+//     let debug = document.getElementById("debug");
+//     for (var property in lightdm) {
+//         let p = document.createElement("p");
+//         debug.appendChild(p);
+//         p.innerHTML = property + ':' + lightdm[property] + ';';
+//     }
+// }
 
 function checkBeforeSubmitPassword() {
     if (username.value.length === 0) {
@@ -158,40 +173,70 @@ function setupPowerButtons() {
     }
 }
 
-window.lightdm = window.lightdm || debugLightDM;
+// The following functions must be provided by the greeter theme and callable on the global "window" object.
+window.show_prompt = function(text, type) {
+    // password = document.getElementById("password");
+    // if(type === 'password') {
+    //     lightdm.respond(password.value);
+    // }
+};
 
-// --- Globals
-let dafault_session = lightdm.sessions[0];
-let username = document.getElementById("username");
-let password = document.getElementById("password");
-let shutdown = document.getElementById("shutdown");
-let message = document.getElementById("message");
+window.show_message = function(text, type) {
 
+}
+
+window.authentication_complete = function() {
+
+}
+
+window.autologin_timer_expired = function() {
+
+}
+
+window.start_authentication = function(username) {
+    clear_messages();
+    lightdm.authenticate(username);
+};
+
+// Le start
 window.addEventListener('load', () => {
-    if (lightdm.debug)
-        debugLightDMVariables();
+    // Load lightdm object based on development or production
+    window.lightdm = window.lightdm || debugLightDM;
 
+    // Set hostname if exists
+    globals.pagetitle.innerText = lightdm.hostname || "Undefined";
+
+    // Is it really necessary?
     const inputs = document.querySelectorAll("input");
     for (let input of inputs) {
         input.value = '';
         input.addEventListener('keydown', handleUserKeydown);
     }
 
-    // start with cursor focusing on username input
-    username.focus();
+    // TODO: Add last user logged to username input
+    let lastUser = window.localStorage.getItem('lastUser');
+    if (lastUser !== null) {
+        globals.username.value = lastUser;
+    } else {
+        if (lightdm.users.length === 1) {
+            globals.username.value = lightdm.users[0].username;
+        } else {
+            // More than one user, get the last one
+            globals.username.value = lightdm.users[lightdm.users.length - 1].username;
+        }
+    }
+    // window.localStorage.setItem('lastUser', globals.username.value);
+    globals.password.focus();
 
-    // print by default last user logged
-    // that info perhaps can grabbed from ligthdm sessions?
-    if (lightdm.users.length > 0) {
-        username.value = lightdm.users[lightdm.users.length - 1].name;
-        lightdm.select_user = username.value;
+    // At the moment set default session
+    if (lightdm.sessions.length > 0 && globals.default_session === undefined) {
+        globals.default_session = lightdm.sessions[0].name;
+        globals.session.innerText = globals.default_session;
     }
 
-    // if user clicks on password field, check username field
-    let passwordField = document.getElementById("password");
-    passwordField.addEventListener('click', checkUsername);
+    // If user clicks on password field, check username field
+    globals.password.addEventListener('click', checkUsername);
 
     // Setup power system buttons
     setupPowerButtons();
-
 });
