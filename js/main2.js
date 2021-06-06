@@ -76,42 +76,10 @@ let debugLightDM = {
     "layout" : "es cat"
 }
 
-// --- Helpers
+// Helpers
 function clear_messages() {
-    messages.innerHTML = "";
-    messages.style.visibility = "hidden";
-}
-
-// --- Listeners required by LightDM
-function authentication_complete() {
-    // This function is called by LightDM when authentication has completed.
-    console.log("authentication_complete()");
-    if (lightdm.is_authenticated) {
-        console.log("User is authenticated. Session: " +  dafault_session.name);
-        lightdm.login(lightdm.authentication_user, dafault_session.key);
-    } else {
-        // TODO: Fix lightdm prompt asking for alternatives when error raised
-        show_message("Use name or password is incorrect. Try again", "ERROR");
-        password.value = '';
-        lightdm.authenticate(username.value);
-    }
-}
-
-function show_message(text, type) {
-    console.log(type + ':' + text);
-    message.innerHTML = type + ':' + text;
-}
-
-function submitPassword(event) {
-    event.preventDefault();
-    if (checkBeforeSubmitPassword()) {
-        console.log("Password submitted");
-        lightdm.cancel_autologin(); // Cancels the authentication of the autologin user.
-        lightdm.respond(password.value);
-    } else {
-        password.value = "";
-        lightdm.authenticate(username.value);
-    }
+    globals.messages.innerHTML = "";
+    globals.messages.style.visibility = "hidden";
 }
 
 // --- Helpers
@@ -125,12 +93,12 @@ function submitPassword(event) {
 // }
 
 function checkBeforeSubmitPassword() {
-    if (username.value.length === 0) {
+    if (globals.username.value.length === 0) {
         show_message("Username field is empty", "error");
         return 0;
     }
 
-    if (password.value.length === 0) {
+    if (globals.password.value.length === 0) {
         show_message("Password field is empty", "error");
         return 0;
     }
@@ -138,11 +106,11 @@ function checkBeforeSubmitPassword() {
 }
 
 function checkUsername(event) {
-    if (username.value.length === 0) {
+    if (globals.username.value.length === 0) {
         show_message('Username field cannot be empty', "error");
         return 0;
     }
-    lightdm.authenticate(username.value);
+    lightdm.authenticate(globals.username.value);
     return 1;
 }
 
@@ -151,6 +119,7 @@ function handleUserKeydown(event) {
         checkUsername(event);
     }
     if (event.keyCode === 13) { // Enter is pressed by user
+	checkUsername(event);
         submitPassword(event);
     }
 }
@@ -174,26 +143,85 @@ function setupPowerButtons() {
 }
 
 // The following functions must be provided by the greeter theme and callable on the global "window" object.
+/**
+ * show_prompt callback.
+ */
+
+// This will be called when LightDM needs to prompt the user for some reason, such as asking for a password.  The "text" parameter will be the text of the prompt, and the "type" parameter will either be "text" for a visible prompt, or "password" for a prompt that the input should be hidden.
+
 window.show_prompt = function(text, type) {
-    // password = document.getElementById("password");
-    // if(type === 'password') {
-    //     lightdm.respond(password.value);
-    // }
+    console.log("Vaporwave::window.show_prompt(" + text + ", " + type + ")");
+    if (type === "text") {
+        globals.username.placeholder = text.toUpperCase() + text.slice(1, -1);
+        globals.username.value = "";
+    }
+
+    if (type === "password") {
+        globals.password.value = "";
+    }
+
+    globals.type = type;
 };
 
+/**
+ * show_message callback.
+ */
 window.show_message = function(text, type) {
+	console.log("Vaporwave::window.show_message(" + text + ", " + type + ")");
+	if (0 === text.length) {
+		return;
+	}
+	globals.messages.style.visibility = "visible";
+	// type is either "info" or "error"
+	if (type == 'error') {
+		text = `<p style="color:red;">${text}</p>`;
+	}
+	globals.messages.innerHTML = `${globals.messages.innerHTML}${text}`;
 
+	// Is this the way to avoid prompt error?
+	// lightdm.authenticate();
 }
 
+// Listeners required by LightDM
 window.authentication_complete = function() {
+    // This function is called by LightDM when authentication has completed.
+    console.log("Vaporwave::authentication_complete()");
+    if (lightdm.is_authenticated) {
+        console.log("Vaporwave::authenticatoin_complete::User is authenticated. Session: " +  globals.default_session.name);
+        lightdm.login(lightdm.authentication_user, globals.default_session.key);
+    } else {
+        // TODO: Fix lightdm prompt asking for alternatives when error raised
+        show_message("Vaporwave::authenticatoin_complete::Use name or password is incorrect. Try again", "ERROR");
+        globals.password.value = '';
+        lightdm.authenticate(globals.username.value);
+    }
+}
 
+window.submitPassword = function(event) {
+    event.preventDefault();
+    if (checkBeforeSubmitPassword()) {
+        console.log("Vaporwave::submitPassword:: " + event);
+	console.log("Vaporwave::username: " + globals.username.value);
+        lightdm.cancel_autologin(); // Cancels the authentication of the autologin user.
+        lightdm.respond(globals.password.value);
+    } else {
+        globals.password.value = "";
+        lightdm.authenticate(globals.username.value);
+    }
 }
 
 window.autologin_timer_expired = function() {
-
+	console.log("Vaporwave::autologin_timer_expired");
 }
 
 window.start_authentication = function(username) {
+
+	if ('undefined' === typeof username) {
+		show_prompt("Username?", 'text');
+		lightdm.awaiting_username = true;
+		return;
+	}
+	console.log("Vaporwave::start_authentication("+ username + ")");
     clear_messages();
     lightdm.authenticate(username);
 };
