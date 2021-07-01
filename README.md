@@ -2,6 +2,8 @@
 
 LightDM Webkit2 theme inspired by Vaporwave Pleasent Aesthetic.
 
-## How to install
+## Quick install
 
-sudo rsync --exclude='.git/' --exclude='.*' -zavr . /usr/share/lightdm-webkit/themes/vaporwave/
+``` shell
+./instal.sh
+```
