@@ -35,25 +35,32 @@ let vaporwave_theme = {
     restart_button  : document.getElementById('restart_button'),
     suspend_button  : document.getElementById('suspend_button'),
     /**
+     * Get session ID
+     * params: none
+     */
+    get_session_id  : () => {
+        return vaporwave_theme.lightdm.sessions[0].name;
+    },
+    /**
      * Check username field value
      * params: none
      */
-    check_username : () => {
+    check_username  : () => {
         let username = vaporwave_theme.username_input.value;
         if (0 === username.length) {
             vaporwave_theme.username = undefined;
-            vaporwave_theme.error_message.append("ERROR: Username field is empty!");
+            vaporwave_theme.error_message.innerHTML += ("<p>Warning: user name field is empty!</p>");
             return false
         } else {
             vaporwave_theme.username = username;
             return true
         }
     },
-    authenticate_user : () => {
+    authenticate_user : (event) => {
+        event.preventDefault();
         if (vaporwave_theme.check_username())
             vaporwave_theme.lightdm.authenticate(vaporwave_theme.username)
     },
-    handleEventKeyboard: (event) => { console.log('Hello ' + vaporwave_theme.version) },
     shutdown_system: () => { vaporwave_theme.lightdm.shutdown() },
     restart_system: () => { vaporwave_theme.lightdm.restart() },
     suspend_system: () => { vaporwave_theme.lightdm.suspend() }
@@ -67,8 +74,8 @@ window.addEventListener('load', () => {
             t.check_username();
         }
     });
-    t.password_input.addEventListener('click', (event) => { console.log(t.username_input.value)});
-    t.login_button.addEventListener('click', t.authenticate_user);
+    t.password_input.addEventListener('click', (event) => { t.authenticate_user(event) });
+    t.login_button.addEventListener('click', (event) => { t.authenticate_user(event) });
     t.shutdown_button.addEventListener('click', t.shutdown_system);
     t.restart_button.addEventListener('click', t.restart_system);
     t.suspend_button.addEventListener('click', t.suspend_system);
