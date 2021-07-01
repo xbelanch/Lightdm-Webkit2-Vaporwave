@@ -23,30 +23,35 @@ let lightdm_debug = {
 };
 
 let vaporwave_theme = {
-    version : "0.1",
-    lightdm : window.lightdm || lightdm_debug,
+    version         : "0.1",
+    lightdm         : window.lightdm || lightdm_debug,
+    username        : undefined,
+    password        : undefined,
     username_input  : document.getElementById("username"),
     password_input  : document.getElementById("password"),
+    error_message   : document.getElementById("error_message"),
     login_button    : document.getElementById("login_button"),
-    shutdown_button : document.getElementById('shutdown-button'),
-    restart_button  : document.getElementById('restart-button'),
-    suspend_button  : document.getElementById('suspend-button'),
-    // Some theme functions
+    shutdown_button : document.getElementById('shutdown_button'),
+    restart_button  : document.getElementById('restart_button'),
+    suspend_button  : document.getElementById('suspend_button'),
+    /**
+     * Check username field value
+     * params: none
+     */
     check_username : () => {
         let username = vaporwave_theme.username_input.value;
-        if (username  === '') {
-            console.log("ERROR: Username field is empty!")
+        if (0 === username.length) {
+            vaporwave_theme.username = undefined;
+            vaporwave_theme.error_message.append("ERROR: Username field is empty!");
+            return false
         } else {
-            console.log("Username value: " + username)
+            vaporwave_theme.username = username;
+            return true
         }
     },
-
-    authenticate_user : (username) => {
-        if (username !== undefined) {
-           vaporwave_theme.lightdm.authenticate(username)
-        } else {
-            // TODO: Display error message
-        }
+    authenticate_user : () => {
+        if (vaporwave_theme.check_username())
+            vaporwave_theme.lightdm.authenticate(vaporwave_theme.username)
     },
     handleEventKeyboard: (event) => { console.log('Hello ' + vaporwave_theme.version) },
     shutdown_system: () => { vaporwave_theme.lightdm.shutdown() },
@@ -63,7 +68,7 @@ window.addEventListener('load', () => {
         }
     });
     t.password_input.addEventListener('click', (event) => { console.log(t.username_input.value)});
-    t.login_button.addEventListener('click', t.handleEventKeyboard);
+    t.login_button.addEventListener('click', t.authenticate_user);
     t.shutdown_button.addEventListener('click', t.shutdown_system);
     t.restart_button.addEventListener('click', t.restart_system);
     t.suspend_button.addEventListener('click', t.suspend_system);
