@@ -13,39 +13,61 @@ let lightdm_debug = {
         { key: 0, name: 'i3' },
         { key: 1, name: 'i3-default' }
     ],
-    authenticate : function(username) {
+    authenticate : (username) => {
         console.log("lightdm.authenticate(" + username + ")")
     },
-    respond : function(text) {
-        console.log("lightdm.respond(" + text + ")");
-    },
-    shutdown : function() {
-        console.log("lightdm.shutdown()");
-    },
-    restart : function() {
-        console.log("lightdm.restart()");
-    },
-    suspend : function() {
-        console.log("lightdm.suspend()");
-    },
+    respond  : (text) => { console.log("lightdm.respond(" + text + ")") },
+    shutdown : () => { console.log("lightdm.shutdown()") },
+    restart  : () => { console.log("lightdm.restart()") },
+    suspend  : () => { console.log("lightdm.suspend()") }
 };
 
 let vaporwave_theme = {
+    version : "0.1",
     lightdm : window.lightdm || lightdm_debug,
-    username_input : document.getElementById("username"),
-    login_button : document.getElementById("loginbutton"),
-    password_input : document.getElementById("password"),
+    username_input  : document.getElementById("username"),
+    password_input  : document.getElementById("password"),
+    login_button    : document.getElementById("login_button"),
+    shutdown_button : document.getElementById('shutdown-button'),
+    restart_button  : document.getElementById('restart-button'),
+    suspend_button  : document.getElementById('suspend-button'),
+    // Some theme functions
+    check_username : () => {
+        let username = vaporwave_theme.username_input.value;
+        if (username  === '') {
+            console.log("ERROR: Username field is empty!")
+        } else {
+            console.log("Username value: " + username)
+        }
+    },
+
     authenticate_user : (username) => {
         if (username !== undefined) {
            vaporwave_theme.lightdm.authenticate(username)
         } else {
             // TODO: Display error message
         }
-    }
+    },
+    handleEventKeyboard: (event) => { console.log('Hello ' + vaporwave_theme.version) },
+    shutdown_system: () => { vaporwave_theme.lightdm.shutdown() },
+    restart_system: () => { vaporwave_theme.lightdm.restart() },
+    suspend_system: () => { vaporwave_theme.lightdm.suspend() }
 };
 
 window.addEventListener('load', () => {
-    vaporwave_theme.authenticate_user("rotter");
+
+    let t = vaporwave_theme;
+    t.username_input.addEventListener('keydown', (event) => {
+        if (event.keyCode === 9) {
+            t.check_username();
+        }
+    });
+    t.password_input.addEventListener('click', (event) => { console.log(t.username_input.value)});
+    t.login_button.addEventListener('click', t.handleEventKeyboard);
+    t.shutdown_button.addEventListener('click', t.shutdown_system);
+    t.restart_button.addEventListener('click', t.restart_system);
+    t.suspend_button.addEventListener('click', t.suspend_system);
+
     // let auth_user = (username) => {
     //     selected_user = username;
     //     localStorage.selected_user = selected_user;
