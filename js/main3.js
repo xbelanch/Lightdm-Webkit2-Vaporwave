@@ -1,5 +1,9 @@
 "use strict";
 
+let LOG = (text) => {
+    console.log("VAPORWAVE::" + text)
+}
+
 let lightdm_debug = {
     // Boolean. Indicates if the user has successfully authenticated.
     is_authenticated : true,
@@ -38,44 +42,95 @@ let vaporwave_theme = {
      * Get session ID
      * params: none
      */
-    get_session_id  : () => {
+    get_session_id: () => {
         return vaporwave_theme.lightdm.sessions[0].name;
     },
     /**
      * Check username field value
      * params: none
      */
-    check_username  : () => {
+    check_username: () => {
         let username = vaporwave_theme.username_input.value;
         if (0 === username.length) {
             vaporwave_theme.username = undefined;
             vaporwave_theme.error_message.innerHTML += ("<p>Warning: user name field is empty!</p>");
+            setTimeout(() => {
+                vaporwave_theme.error_message.innerHTML = '';
+            }, 2500);
             return false
         } else {
             vaporwave_theme.username = username;
             return true
         }
     },
-    authenticate_user : (event) => {
+    authenticate_user: (event) => {
         event.preventDefault();
         if (vaporwave_theme.check_username())
+            LOG("lightdm.authenticate(" + vaporwave_theme.username +")")
             vaporwave_theme.lightdm.authenticate(vaporwave_theme.username)
+    },
+    submit_password: () => {
+        if (vaporwave_theme.check_username()) {
+            let password = vaporwave_theme.password_input.value;
+            LOG("Call lightdm.respond(" + password + ")");
+            vaporwave_theme.lightdm.respond(password);
+        }
     },
     shutdown_system: () => { vaporwave_theme.lightdm.shutdown() },
     restart_system: () => { vaporwave_theme.lightdm.restart() },
-    suspend_system: () => { vaporwave_theme.lightdm.suspend() }
+    suspend_system: () => { vaporwave_theme.lightdm.suspend() },
+    show_prompt: (text, type) => {
+        let log = "lightdm.show_prompt(" + text + "," + type + ")";
+        LOG(log);
+    },
+    show_message: (text, type) => {
+        let log = "lightdm.show_message(" + text + "," + type + ")";
+        LOG(log);
+
+    },
+    authentication_complete: () => {
+        LOG("lightdm.authentication_complete()");
+        vaporwave_theme.lightdm.authentication_complete();
+    },
+    autologin_timer_expired: () => {
+        LOG("lightdm.autologin_timer_expired()");
+    }
 };
 
 window.addEventListener('load', () => {
 
     let t = vaporwave_theme;
+    /**
+     *
+     * The following functions must be provided by the greeter
+     * theme and callable on the global "window" object.
+     *
+     */
+    window.show_prompt = t.show_prompt;
+    window.show_message = t.show_message;
+    window.authentication_complete = t.authentication_complete;
+    window.autologin_timer_expired = t.autologin_timer_expired;
+
+    // Called by LightDM when authentication has completed.
+    t.lightdm.authentication_complete = () => {
+        LOG("lightdm.authentication_complete()");
+	    LOG("lightdm.authentication_user: " + t.lightdm.authentication_user);
+        if (t.lightdm.is_authenticated) {
+            LOG("User is authenticated");
+            t.lightdm.login(t.lightdm.authentication_user, 0);
+        } else {
+            LOG("Something went wrong at lightdm.authentication_complete() function");
+        }
+    }
+
+    // Register callbacks
     t.username_input.addEventListener('keydown', (event) => {
         if (event.keyCode === 9) {
             t.check_username();
         }
     });
     t.password_input.addEventListener('click', (event) => { t.authenticate_user(event) });
-    t.login_button.addEventListener('click', (event) => { t.authenticate_user(event) });
+    t.login_button.addEventListener('click', t.submit_password);
     t.shutdown_button.addEventListener('click', t.shutdown_system);
     t.restart_button.addEventListener('click', t.restart_system);
     t.suspend_button.addEventListener('click', t.suspend_system);
