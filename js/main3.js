@@ -27,10 +27,22 @@ let lightdm_debug = {
 };
 
 let vaporwave_theme = {
-    version         : "0.1",
+    /**
+     * Public theme variables
+     *
+     */
+    version         : "0.2",
     lightdm         : window.lightdm || lightdm_debug,
-    username        : undefined,
-    password        : undefined,
+    username        : '',
+    password        : '',
+    users           : [],
+    session         : '',
+    sessions        : [],
+
+    /**
+     * HTML id elements
+     *
+     */
     username_input  : document.getElementById("username"),
     password_input  : document.getElementById("password"),
     error_message   : document.getElementById("error_message"),
@@ -38,18 +50,45 @@ let vaporwave_theme = {
     shutdown_button : document.getElementById('shutdown_button'),
     restart_button  : document.getElementById('restart_button'),
     suspend_button  : document.getElementById('suspend_button'),
+
     /**
-     * Get session ID
-     * params: none
+     * Get list avalaible sessions and set first as the default
+     *
      */
-    get_session_id: () => {
-        return vaporwave_theme.lightdm.sessions[0].name;
+    get_session_list: () => {
+        for (let session of vaporwave_theme.lightdm.sessions) {
+            vaporwave_theme.sessions.push(session);
+        }
+        vaporwave_theme.session = vaporwave_theme.sessions[0];
     },
+    /**
+     * Get list avalaible users and set first as the default
+     *
+     */
+    get_users_list: () => {
+        for (let user of vaporwave_theme.lightdm.users) {
+            vaporwave_theme.users.push(user);
+        }
+
+        if (typeof(Storage) !== 'undefined') {
+            let last_authenticated_user = localStorage.getItem('last_authenticated_user');
+            if (last_authenticated_user === null) {
+                vaporwave_theme.username = vaporwave_theme.users[0].username;
+                localStorage.setItem('last_authenticated_user', vaporwave_theme.username);
+            } else {
+                vaporwave_theme.username = last_authenticated_user;
+            }
+            vaporwave_theme.username_input.value = vaporwave_theme.username;
+        } else {
+            LOG("Error: Can't retrieve last authenticated user. LocalStorage not supported!")
+        }
+    },
+
     /**
      * Check username field value
      * params: none
      */
-    check_username: () => {
+    check_username_value: () => {
         let username = vaporwave_theme.username_input.value;
         if (0 === username.length) {
             vaporwave_theme.username = undefined;
@@ -63,14 +102,20 @@ let vaporwave_theme = {
             return true
         }
     },
-    authenticate_user: (event) => {
-        event.preventDefault();
-        if (vaporwave_theme.check_username())
+    start_authenticate_user: (event) => {
+
+        if (vaporwave_theme.check_username_value() || !vaporwave_theme.lightdm.in_authentication) {
             LOG("lightdm.authenticate(" + vaporwave_theme.username +")")
             vaporwave_theme.lightdm.authenticate(vaporwave_theme.username)
+            if (vaporwave_theme.lightdm.is_authenticated) {
+                LOG("User: " + vaporwave_theme.lightdm.authentication_user +  " is authenticated")
+            } else {
+            LOG("ERROR: User: " + vaporwave_theme.lightdm.authentication_user +  " is NOT authenticated")
+            }
+        }
     },
     submit_password: () => {
-        if (vaporwave_theme.check_username()) {
+        if (vaporwave_theme.check_username_value()) {
             let password = vaporwave_theme.password_input.value;
             LOG("Call lightdm.respond(" + password + ")");
             vaporwave_theme.lightdm.respond(password);
@@ -81,6 +126,9 @@ let vaporwave_theme = {
     suspend_system: () => { vaporwave_theme.lightdm.suspend() },
     show_prompt: (text, type) => {
         let log = "lightdm.show_prompt(" + text + "," + type + ")";
+        if (type === 'password') {
+            lightdm.respond("alcestes1972");
+        }
         LOG(log);
     },
     show_message: (text, type) => {
@@ -100,6 +148,7 @@ let vaporwave_theme = {
 window.addEventListener('load', () => {
 
     let t = vaporwave_theme;
+
     /**
      *
      * The following functions must be provided by the greeter
@@ -111,6 +160,18 @@ window.addEventListener('load', () => {
     window.authentication_complete = t.authentication_complete;
     window.autologin_timer_expired = t.autologin_timer_expired;
 
+    /**
+     *
+     * Preparing list of sessions and users
+     *
+     */
+    t.get_session_list();
+    t.get_users_list();
+
+    LOG(t.sessions);
+    LOG(t.users);
+    LOG(t.username);
+s
     // Called by LightDM when authentication has completed.
     t.lightdm.authentication_complete = () => {
         LOG("lightdm.authentication_complete()");
@@ -123,78 +184,20 @@ window.addEventListener('load', () => {
         }
     }
 
-    // Register callbacks
+    /**
+     * Register callbacks
+     *
+     */
     t.username_input.addEventListener('keydown', (event) => {
         if (event.keyCode === 9) {
-            t.check_username();
+            t.check_username_value();
         }
     });
-    t.password_input.addEventListener('click', (event) => { t.authenticate_user(event) });
+    t.password_input.addEventListener('click', (event) => { t.start_authenticate_user(event) });
     t.login_button.addEventListener('click', t.submit_password);
+
+    // System callbacks
     t.shutdown_button.addEventListener('click', t.shutdown_system);
     t.restart_button.addEventListener('click', t.restart_system);
     t.suspend_button.addEventListener('click', t.suspend_system);
-
-    // let auth_user = (username) => {
-    //     selected_user = username;
-    //     localStorage.selected_user = selected_user;
-    //     lightdm.authenticate(username);
-    // }
-
-    // login_button_container.addEventListener('click', (e) => {
-    //     login();
-    // })
-
-    // function login() {
-    //     if (0 === username_input.value.length)
-    //         throw "Username is empty!"
-    //     if (0 === password_input.value.length) {
-    //         throw "Password is empty!";
-    //     } else {
-    //         lightdm.respond(password);
-    //     }
-    // }
-
-    // window.addEventListener('keydown', (e) => {
-    //     password_input.focus();
-    // }, false);
-
-    // password_input.addEventListener('keyup', (e) => {
-    //     if (e.keyCode === 13)
-    //         login();
-    // }, false);
-
-
-    // /**
-    // * This function is called by LightDM when authentication has completed
-    // */
-    // window.authentication_complete = () => {
-    //     let selected_session = 'i3' // TODO: Need to be defined by user
-    //     if (lightdm.is_authenticated) {
-    //         // setTimeout(() => {
-    //         //     lightdm.start_session(selectedSession);
-    //         // }, 1000);
-    //         lightdm.login(lightdm.authentication_user, selected_session);
-    //     } else {
-    //         // TODO: Do something...
-    //         console.log('TODO: Do something if authentication user fails')
-    //     }
-    // };
-
-    // // System buttons
-    // const shutdownButton = document.getElementById('shutdown-button');
-    // shutdownButton.addEventListener('click', (e) => {
-    //     lightdm.shutdown();
-    // }, false);
-
-    // const restartButton = document.getElementById('restart-button');
-    // restartButton.addEventListener('click', (e) => {
-    //     lightdm.restart();
-    // }, false);
-
-    // const suspendButton = document.getElementById('suspend-button');
-    // suspendButton.addEventListener('click', (e) => {
-    //     lightdm.suspend();
-    // }, false);
-    // console.log("Everything is fine!");
 });
