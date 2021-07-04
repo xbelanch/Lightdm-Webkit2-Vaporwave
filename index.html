@@ -4,19 +4,76 @@
     <title>Vaporwave Login Theme</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css" />
+    <!-- <link rel="stylesheet" href="css/style.css" /> -->
     <meta name="description" content="Theme: Vaporwave">
   </head>
   <body id="body">
+    <style>
+      #body {
+          background-color: black;
+      }
 
-    <div id="prompt">
-      <select name="username" id="username"></select>
-      <!-- <input class="input" id="username" type="text"> -->
-      <form class="password-form">
-        <input class="input" id="password" type="password">
-        <input class="input" id="submit" type="submit">
-      </form>
+      #pagetitle, #session {
+          color: white;
+      }
+
+      #inputUserPassContainer {
+          width: 620px;
+          margin: 0 auto;
+          background-color: orangered;
+      }
+      input[type=text], input[type=password] {
+          font-size: 3.3em;
+          width: 10em;
+          margin: 0.3em 0;
+      }
+
+      #debug {
+          background-color: black;
+      }
+
+      #debug p {
+          color: greenyellow;
+          font-size: 1em;
+          padding: 0;
+          font-family: monospace;
+          line-height: 0.5em;
+      }
+      #power-buttons {
+          color: white;
+          font-size: 2em;
+      }
+      #error_message {
+          color: yellow;
+          font-size: 3em;
+          /* visibility: hidden; */
+      }
+    </style>
+
+    <h1 id="pagetitle"></h1>
+    <h2 id="session"></h2>
+    <div id="inputUserPassContainer">
+      <div id="usernameField">
+        <input type="text" name="username" id="username" class="form-control">
+      </div>
+      <div id="passwordField">
+        <input type="password" name="password" id="password" class="form-control">
+      </div>
+      <div id="buttonsField">
+        <button class="myfavoritestyle" id="login_button" type="button">It's Okay</button>
+        </div>
     </div>
+
+	<div id="power-buttons">
+	  <ul id="power-menu">
+		<li id="shutdown_button">Shutdown</li>
+		<li id="restart_button">Restart</li>
+		<li id="suspend_button">Suspend</li>
+	  </ul>
+	</div>
+
+    <div id="error_message"></div>
+    <script type="text/javascript" src="js/main.js"></script>
     <!-- <div id="wrapper"> -->
     <!--   <\!-- -->
     <!--       Check out this codepens: -->
@@ -53,7 +110,5 @@
     <!--   <\!-- end of dialogue-box -\-> -->
     <!--   </span> -->
     <!-- </div> -->
-    <p class="messageBox" id="messages">Hello World!</p>
-    <script type="text/javascript" src="js/main.js"></script>
   </body>
 </html>
