@@ -42,28 +42,6 @@ input {
     font-weight: 200;
 }
 
-#prompt select {
-    background-color: blueviolet;
-    font-size: 3rem;
-    height: 4rem;
-    width: 32rem;
-}
-
-#prompt form input[type=password] {
-    background-color: red;
-    font-size: 3rem;
-    height: 4rem;
-    width: 32rem;
-}
-
-#prompt form input[type=submit] {
-    background-color: gray;
-    font-size: 4rem;
-    width: 32rem;
-    font-size: 3rem;
-    height: 4rem;
-}
-
 #wrapper {
     position: relative;
     padding: 1%;
@@ -87,13 +65,14 @@ input {
     border-left: 1px solid #c0c0c0;
     border-top: 1px solid #c0c0c0;
     box-shadow: -1px -1px white, 0px -1px white, -1px 0px white, 1px 1px black, -1px 1px black, 1px -1px black;
-    opacity: 0;
-    transition: 500ms cubic-bezier(.47, 0, .74, .71) opacity;
+    /* opacity: 0; */
+    /* transition: 500ms cubic-bezier(.47, 0, .74, .71) opacity; */
+    transform: scale(2);
 }
 
-#dialogue-box.active {
-    opacity: 1;
-}
+/* #dialogue-box.active { */
+/*     opacity: 1; */
+/* } */
 
 #titlebar {
     background: #000080;
