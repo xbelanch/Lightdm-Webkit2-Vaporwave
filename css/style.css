@@ -8,12 +8,15 @@
 }
 
 body {
-    display: grid;
+    /* display: grid; */
     font-size: 11px;
     line-height: 12px;
     place-items: center;
     min-height: 100vh;
-    background: teal;
+    /* background: teal; */
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,0,0.5), rgba(0,0,255,0.5)),
+        url('../assets/wallhaven-2kqxpm.jpg');
 }
 
 body,
@@ -56,7 +59,23 @@ input {
     transform: translateY(-50%);
 }
 
+h1.vapor {
+  position: relative;
+  z-index: 2;
+  margin-left: 160px;
+  color: #6EFCBB;
+  font-weight: bold;
+  font-size: 72pt;
+  font-family: sans-serif;
+  text-shadow: 4px 4px 0px #4AB18E;
+  line-height: 120px;
+}
+
+
 #dialogue-box {
+    margin-left: 350px;
+    margin-top: 240px;
+    z-index: 3;
     width: 455px;
     height: 190px;
     background: #C0C0C0;
@@ -68,6 +87,7 @@ input {
     /* opacity: 0; */
     /* transition: 500ms cubic-bezier(.47, 0, .74, .71) opacity; */
     transform: scale(2);
+    background: linear-gradient(to bottom, rgba(0,0,255,0.5), rgba(255,255,0,0.5));
 }
 
 /* #dialogue-box.active { */

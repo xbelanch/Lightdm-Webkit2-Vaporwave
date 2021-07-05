@@ -13,3 +13,6 @@ LightDM Webkit2 theme inspired by Vaporwave Pleasent Aesthetic.
 * [https://codepen.io/racecraftr/pen/bGVWapO ](https://codepen.io/racecraftr/pen/bGVWapO )
 * [https://codepen.io/penry/pen/xEPKpj](https://codepen.io/penry/pen/xEPKpj)
 * [https://github.com/themesberg/windows-95-ui-kit](https://github.com/themesberg/windows-95-ui-kit)
+
+
+About the wallpaper: At this point it has been taken from [Dokkar](https://wallhaven.cc/w/2kqxpm). In short will be replaced.
