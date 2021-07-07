@@ -251,6 +251,9 @@ window.addEventListener('load', () => {
     });
     t.login_button.addEventListener('click', t.submit_password);
 
+    // TODO: Put the focus on password instead of username field
+    t.username_input.focus();
+
     // System callbacks
     t.shutdown_button.addEventListener('click', t.shutdown_system);
     t.restart_button.addEventListener('click', t.restart_system);
